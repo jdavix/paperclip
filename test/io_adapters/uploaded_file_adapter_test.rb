@@ -124,9 +124,6 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
       context "don't trust client-given MIME type" do
         setup do
-          Paperclip::UploadedFileAdapter.content_type_detector =
-            Paperclip::FileCommandContentTypeDetector
-
           class UploadedFile < OpenStruct; end
           @file = UploadedFile.new(
             :original_filename => "5k.png",

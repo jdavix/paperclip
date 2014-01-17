@@ -32,10 +32,6 @@ module Paperclip
         EMPTY_TYPE
       elsif calculated_type_matches.any?
         calculated_type_matches.first
-      elsif official_type_matches.any?
-        official_type_matches.first
-      elsif unofficial_type_matches.any?
-        unofficial_type_matches.first
       else
         type_from_file_command || SENSIBLE_DEFAULT
       end.to_s
@@ -46,7 +42,7 @@ module Paperclip
     def empty_file?
       File.exists?(@filename) && File.size(@filename) == 0
     end
-    
+
     alias :empty? :empty_file?
 
     def blank_name?
@@ -61,16 +57,14 @@ module Paperclip
       possible_types.select{|content_type| content_type == type_from_file_command }
     end
 
-    def official_type_matches
-      possible_types.reject{|content_type| content_type.match(/\/x-/) }
-    end
-
-    def unofficial_type_matches
-      possible_types.select{|content_type| content_type.match(/\/x-/) }
-    end
-
     def type_from_file_command
-      @type_from_file_command ||= FileCommandContentTypeDetector.new(@filename).detect
+      begin
+        # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
+        Paperclip.run("file", "-b --mime-type :file", :file => @filename).strip
+      rescue Cocaine::CommandLineError => e
+        Paperclip.log("Error while determining content type: #{e}")
+        SENSIBLE_DEFAULT
+      end
     end
   end
 end

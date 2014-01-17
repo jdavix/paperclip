@@ -165,7 +165,7 @@ class AttachmentTest < Test::Unit::TestCase
                                            :default_style => 'default style',
                                            :url_generator => mock_url_generator_builder)
 
-    attachment_json = attachment.as_json
+    attachment.as_json
     assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
   end
 
@@ -1045,7 +1045,7 @@ class AttachmentTest < Test::Unit::TestCase
 
     should 'clear out the previous assignment when assigned nil' do
       @attachment.assign(@file)
-      original_file = @attachment.queued_for_write[:original]
+      @attachment.queued_for_write[:original]
       @attachment.assign(nil)
       assert_nil @attachment.queued_for_write[:original]
     end
@@ -1129,7 +1129,7 @@ class AttachmentTest < Test::Unit::TestCase
                [:small, 32, 32, "JPEG"]].each do |style|
                 cmd = %Q[identify -format "%w %h %b %m" "#{@attachment.path(style.first)}"]
                 out = `#{cmd}`
-                width, height, size, format = out.split(" ")
+                width, height, _size, format = out.split(" ")
                 assert_equal style[1].to_s, width.to_s
                 assert_equal style[2].to_s, height.to_s
                 assert_equal style[3].to_s, format.to_s

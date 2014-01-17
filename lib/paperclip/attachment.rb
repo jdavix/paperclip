@@ -94,6 +94,7 @@ module Paperclip
     def assign uploaded_file
       ensure_required_accessors!
       file = Paperclip.io_adapters.for(uploaded_file)
+      ensure_no_type_fuckery_on(file)
 
       return nil if not file.assignment?
       self.clear(*only_process)
@@ -379,6 +380,11 @@ module Paperclip
           raise Paperclip::Error.new("#{@instance.class} model missing required attr_accessor for '#{name}_#{field}'")
         end
       end
+    end
+
+    def ensure_no_type_fuckery_on(file)
+     # Paperclip::MediaTypeSpoofDetector.new(file)
+
     end
 
     def log message #:nodoc:
