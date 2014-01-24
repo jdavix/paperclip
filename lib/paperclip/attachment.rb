@@ -100,22 +100,24 @@ module Paperclip
       return nil if file.nil?
 
       @queued_for_write[:original]   = file
-      instance_write(:file_name,       cleanup_filename(file.original_filename))
-      instance_write(:content_type,    file.content_type.to_s.strip)
-      instance_write(:file_size,       file.size)
-      instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
-      instance_write(:created_at,      Time.now) if has_enabled_but_unset_created_at?
-      instance_write(:updated_at,      Time.now)
+      if !@queued_for_write[:original].nil?
+        instance_write(:file_name,       cleanup_filename(file.original_filename))
+        instance_write(:content_type,    file.content_type.to_s.strip)
+        instance_write(:file_size,       file.size)
+        instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
+        instance_write(:created_at,      Time.now) if has_enabled_but_unset_created_at?
+        instance_write(:updated_at,      Time.now)
 
-      @dirty = true
+        @dirty = true
 
-      post_process(*only_process) if post_processing
+        post_process(*only_process) if post_processing
 
-      # Reset the file size if the original file was reprocessed.
-      instance_write(:file_size,   @queued_for_write[:original].size)
-      instance_write(:fingerprint, @queued_for_write[:original].fingerprint) if instance_respond_to?(:fingerprint)
-      updater = :"#{name}_file_name_will_change!"
-      instance.send updater if instance.respond_to? updater
+        # Reset the file size if the original file was reprocessed.
+        instance_write(:file_size,   @queued_for_write[:original].size)
+        instance_write(:fingerprint, @queued_for_write[:original].fingerprint) if instance_respond_to?(:fingerprint)
+        updater = :"#{name}_file_name_will_change!"
+        instance.send updater if instance.respond_to? updater
+      end
     end
 
     # Returns the public URL of the attachment with a given style. This does
